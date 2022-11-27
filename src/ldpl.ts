@@ -1,3 +1,10 @@
+/// system functions you can override
+const LDPL = {
+    print: console.log,
+    run,
+    scan,
+}
+
 /// local environment to store functions and variables
 class Env {
     scope: { [key: string]: any } = {}
@@ -113,7 +120,7 @@ function run(tokens: string[][], env: Env = new Env()) {
                 break
 
             case 'DISPLAY':
-                console.log(line.slice(1).map(toVal).join(''))
+                LDPL.print(line.slice(1).map(toVal).join(''))
                 break
 
             case 'DECR': {
@@ -266,14 +273,11 @@ function tokens(line: string): string[] {
     return tokens
 }
 
+(window as any).LDPL = LDPL
+
 if ('Deno' in window) {
     if (Deno.args[0])
         run(scan(Deno.readTextFileSync(Deno.args[0])))
     else
         console.error("Please provide an LDPL file")
-} else {
-    (window as any)['LDPL'] = {
-        run,
-        scan
-    }
 }

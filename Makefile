@@ -3,4 +3,4 @@ test:
 
 build:
 	deno bundle --check src/ldpl.ts > lib/ldpl.js
-	cp lib/ldpl.js web/src
+	cp lib/ldpl.js docs/src
