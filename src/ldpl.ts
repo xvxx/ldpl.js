@@ -1,11 +1,3 @@
-import { writeAllSync } from "https://deno.land/std/streams/conversion.ts"
-
-/// console.write
-declare global { interface Console { write(...str: string[]): void } }
-(console as any).write = (...str: string[]) =>
-    writeAllSync(Deno.stdout, new TextEncoder().encode(str.join(' ')))
-
-
 /// local environment to store functions and variables
 class Env {
     scope: { [key: string]: any } = {}
@@ -121,7 +113,7 @@ function run(tokens: string[][], env: Env = new Env()) {
                 break
 
             case 'DISPLAY':
-                console.write(line.slice(1).map(toVal).join(''))
+                console.log(line.slice(1).map(toVal).join(''))
                 break
 
             case 'DECR': {
@@ -274,7 +266,14 @@ function tokens(line: string): string[] {
     return tokens
 }
 
-if (Deno.args[0])
-    run(scan(Deno.readTextFileSync(Deno.args[0])))
-else
-    console.error("Please provide an LDPL file")
+if ('Deno' in window) {
+    if (Deno.args[0])
+        run(scan(Deno.readTextFileSync(Deno.args[0])))
+    else
+        console.error("Please provide an LDPL file")
+} else {
+    (window as any)['LDPL'] = {
+        run,
+        scan
+    }
+}

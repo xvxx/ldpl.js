@@ -1,0 +1,118 @@
+<head>
+    <title>LDPL.js</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<style>
+    body {
+        font-family: Helvetica, Arial, sans-serif;
+        margin: 1.5rem;
+        line-height: 1.5rem;
+        background-color: #5fd8fd;
+        color: white;
+        text-align: center;
+        margin: auto;
+    }
+
+    .logo {
+        position: absolute;
+        left: 10;
+        bottom: 50;
+        max-height: 200px;
+    }
+
+    h1 {
+        margin-top: 30px;
+    }
+
+    a {
+        color: white;
+    }
+
+    .code {
+        margin: auto;
+        width: 50%;
+    }
+
+    .code img {
+        margin-top: 20px;
+    }
+
+    .code input[type=button] {
+        margin-top: 20px;
+    }
+
+    #editor {
+        position: relative;
+        width: 100%;
+        height: 400px;
+    }
+
+</style>
+
+<body>
+    <div class="header">
+        <h1>
+            LDPL.js
+        </h1>
+        <p>
+            LDPL in JabbaScript.
+        </p>
+    </div>
+
+    <div class="logo">
+        <img src="https://www.ldpl-lang.org/graphics/other/ldplsaur.png" alt="LDPL Logo" />
+    </div>
+
+    <div class="code">
+        <div id="editor"></div>
+        <pre id="default" style="display:none">
+# LDPL 99 Bottles of Beer
+# by Martin del Rio
+# https://www.ldpl-lang.org/
+# Created for LDPL 1.0
+
+DATA:
+bottles-in-the-wall is number
+plural is text
+
+PROCEDURE:
+store 99 in bottles-in-the-wall
+
+sub-procedure check-plural
+    if bottles-in-the-wall is not equal to 1 then
+        store "s" in plural
+    else
+        store "" in plural
+    end if
+end sub-procedure
+
+while bottles-in-the-wall is greater than 0 do
+    call sub-procedure check-plural
+    display bottles-in-the-wall " bottle" plural " of beer on the wall," crlf
+    display bottles-in-the-wall " bottle" plural " of beer." crlf
+    display "Take one down, pass it around," crlf
+    decr bottles-in-the-wall
+    # in bottles-in-the-wall solve bottles-in-the-wall - 1
+    call sub-procedure check-plural
+    if bottles-in-the-wall is greater than 0 then
+        display bottles-in-the-wall " bottle" plural " of beer on the wall." crlf crlf
+    else
+        display "No bottles of beer on the wall." crlf
+    end if
+repeat
+        </pre>
+        <input type="button" value="Run Code" onclick="runCode()">
+    </div>
+
+    <script src="src/ldpl.js" type="text/javascript" charset="utf-8"></script>
+    <script src="src/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+        document.getElementById("editor").innerHTML = document.getElementById("default").innerText
+        var editor = ace.edit("editor");
+        function runCode() {
+            LDPL.run(LDPL.scan(editor.getValue()))
+        }
+    </script>
+</body>
