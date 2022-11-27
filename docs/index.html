@@ -123,6 +123,7 @@ repeat
             document.getElementById("output").value += text
         }
         function runCode() {
+            document.getElementById("output").value = ""
             LDPL.run(LDPL.scan(editor.getValue()))
         }
     </script>
