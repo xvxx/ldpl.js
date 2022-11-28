@@ -9,6 +9,26 @@ const LDPL = {
 class Env {
     scope: { [key: string]: any } = {}
     subs: { [key: string]: any } = {}
+
+    /// return the value of a variable, string, or number
+    eval(key: string): any {
+        if (typeof (key) != 'string')
+            return key
+
+        if (key[0] == '"')
+            return key.substring(1, key.length - 1)
+
+        if (/^-?\d+(\.\d+)?$/.test(key))
+            return parseFloat(key)
+
+        if (this.scope[key] !== undefined)
+            return this.scope[key]
+
+        if (key == 'CRLF')
+            return "\r\n"
+
+        assert(false, `value: variable ${key} is not defined`)
+    }
 }
 
 /// assert that a condition is true, otherwise throw an error
@@ -16,33 +36,12 @@ const assert = (cond: boolean, msg: string) => {
     if (!cond) throw new Error(`\n\n== ERROR =========\n` + msg + "\n")
 }
 
-/// return the value of a variable, string, or number
-const value = (key: string, env: Env): any => {
-    if (typeof (key) != 'string')
-        return key
-
-    if (key[0] == '"')
-        return key.substring(1, key.length - 1)
-
-    if (/\d/.test(key[0]))
-        return parseFloat(key)
-
-    if (env.scope[key] !== undefined)
-        return env.scope[key]
-
-    if (key == 'CRLF')
-        return "\r\n"
-
-
-    assert(false, `value: variable ${key} is not defined`)
-}
-
 const testCond = (cond: string[], env: Env): boolean => {
     cond = [...cond] // clone list
     assert(cond.length >= 4, `IF $a IS $comparison $b THEN, got: ` + cond)
 
-    const a = value(cond.shift() || "", env)
-    const b = value(cond.pop() || "", env)
+    const a = env.eval(cond.shift() || "")
+    const b = env.eval(cond.pop() || "")
 
     assert((cond.shift() || "") == 'IS', `IF $a IS $b THEN`)
 
@@ -76,9 +75,6 @@ function run(tokens: string[][], env: Env = new Env()) {
                 assert(false, `convert: Unknown type ${type}`)
         }
     }
-
-    /// shortcut
-    const toVal = (val: any) => value(val, env)
 
     /// type of value
     const type = (val: any): string => {
@@ -116,11 +112,11 @@ function run(tokens: string[][], env: Env = new Env()) {
                 assert(line[2] == 'IN', "STORE: want: STORE $value IN $variable\ngot: " + line[2])
                 assert(env.scope[line[3]] !== undefined, `STORE: variable ${line[3]} is not defined`)
 
-                env.scope[line[3]] = convert(toVal(line[1]), type(env.scope[line[3]]))
+                env.scope[line[3]] = convert(env.eval(line[1]), type(env.scope[line[3]]))
                 break
 
             case 'DISPLAY':
-                LDPL.print(line.slice(1).map(toVal).join(''))
+                LDPL.print(line.slice(1).map((x) => env.eval(x)).join(''))
                 break
 
             case 'DECR': {
