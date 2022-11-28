@@ -272,6 +272,9 @@ function tokens(line: string): string[] {
 (window as any).LDPL = LDPL
 
 if ('Deno' in window) {
+    const conv = await import("https://deno.land/std@0.166.0/streams/conversion.ts")
+    LDPL.print = (x) => conv.writeAllSync(Deno.stdout, new TextEncoder().encode(x))
+
     if (Deno.args[0])
         run(scan(Deno.readTextFileSync(Deno.args[0])))
     else
